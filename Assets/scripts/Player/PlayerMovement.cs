@@ -1,115 +1,93 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-
-    public PlayerManager manager;
-
-    private bool was_grounded;
-
-    //ghost effect
-    public GhostEffect ghost_effect;
-
-    private Animator player_animator;
-    public ParticleSystem dust;
-    //public ParticleSystem dash_particle;
-
-    [SerializeField]
-    CameraShake camera_shake; 
+    public PlayerManager Manager;
+    private bool WasGrounded;
     
-    public float velocity = 40.0f;
+    //ghost effect
+    public GhostEffect GhostEffect;
 
-    public float jump_force = 1000.0f;
-    public float drag_force_constant = 20f;
-    private Rigidbody2D rb;
+    private Animator PlayerAnimator;
+    public ParticleSystem Dust;
+    
+    [SerializeField]
+    CameraShake CameraShake;
+
+    public float Velocity = 12.0f;
+
+    public float JumpForce = 1000.0f;
+    public float DragForceConstant = 20f;
+    private Rigidbody2D Rb;
 
     //jump stuff
-    private float time_until_full_jump_is_considered = 0.2f;
-    private float jump_timer = 0f;
-    private bool released_jump = false;
-
-    //rolling stuff
-    /*private float time_to_cancel_rolling = 0.8f;
-    private float rolling_timer = 0f;
-    private bool rolling_cancelled = false;*/
-
-    //sliding stuff
-    private float time_till_push = 0.45f;
-    private float direction = 0;
-    private float timer_till_next_move = 0f;
-    //private bool torque = false;
-
+    private float TimeUntilFullJumpIsConsidered = 0.2f;
+    private float JumpTimer = 0f;
+    private bool IsJumpReleased = false;
+    
     //for the rotation of the box while jumping
-    private float rotation_duration = 0.15f;
-    private float theta_zero;
-    private float theta_target;
-    private float theta_point;
-    private float rotation_timer = 0f;
+    private float RotationDuration = 0.15f;
+    private float ThetaZero;
+    private float ThetaTarget;
+    private float ThetaPoint;
+    private float RotationTimer = 0f;
 
 
     //dash stuff
-    public float dash_time = 0.12f;
-    private float dash_timer = 0.0f;
-    public float dash_velocity = 70.0f;
-    public float dash_end_velocity = 3.0f;
-    public Vector2 dash_direction;
+    public float DashTime = 0.12f;
+    private float DashTimer = 0.0f;
+    public float DashVelocity = 70.0f;
+    public float DashEndVelocity = 3.0f;
+    public Vector2 DashDirection;
 
-    SpriteRenderer spriteRenderer;
+    SpriteRenderer SprRenderer;
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        was_grounded = manager.player_collision.is_grounded;
+        Rb = GetComponent<Rigidbody2D>();
+        SprRenderer = GetComponent<SpriteRenderer>();
+        WasGrounded = Manager.ColliderInstance.IsGrounded;
         //we can change properties like bounciness etc...
     }
-
-
     void Start()
     {
-        player_animator = GetComponent<Animator>();
+        PlayerAnimator = GetComponent<Animator>();
     }
-
-
     // Update is called once per frame
     void Update()
     {
-        
         //dash event
-        if (manager.player_controller.dash_pressed)
+        if (Manager.ControllerInstance.DashPressed)
         {
-            camera_shake.do_shake = true;
+            CameraShake.DoShake = true;
 
-            int hor = manager.player_controller.direction;
-            int vert = manager.player_controller.direction_vert;
+            int hor = Manager.ControllerInstance.Direction;
+            int vert = Manager.ControllerInstance.VerticalDirection;
             if (vert != 0) { hor = 0; }
-            
-            dash_direction = new Vector2(hor, vert);
-            dash_timer = dash_time;            
+
+            DashDirection = new Vector2(hor, vert);
+            DashTimer = DashTime;
         }
 
-        if (manager.player_controller.rotation_pressed)
+        if (Manager.ControllerInstance.RotationPressed)
         {
-            manager.player_controller.rotation_pressed = false;
-            theta_zero = rb.rotation;
-            theta_target = Mathf.Round((rb.rotation + 90) / 90f) * 90f;
-            theta_point = (theta_target - theta_zero) / rotation_duration;
-            rotation_timer = rotation_duration;
-            rb.constraints = RigidbodyConstraints2D.None;
+            Manager.ControllerInstance.RotationPressed = false;
+            ThetaZero = Rb.rotation;
+            ThetaTarget = Mathf.Round((Rb.rotation + 90) / 90f) * 90f;
+            ThetaPoint = (ThetaTarget - ThetaZero) / RotationDuration;
+            RotationTimer = RotationDuration;
+            Rb.constraints = RigidbodyConstraints2D.None;
         }
 
 
-        if (manager.player_controller.reversed_rotation_pressed)
+        if (Manager.ControllerInstance.ReversedRotationPressed)
         {
-            manager.player_controller.reversed_rotation_pressed = false;
-            theta_zero = rb.rotation;
-            theta_target = Mathf.Round((rb.rotation - 90) / 90f) * 90f;
-            theta_point = (theta_target - theta_zero) / rotation_duration;
-            rotation_timer = rotation_duration;
-            rb.constraints = RigidbodyConstraints2D.None;
+            Manager.ControllerInstance.ReversedRotationPressed = false;
+            ThetaZero = Rb.rotation;
+            ThetaTarget = Mathf.Round((Rb.rotation - 90) / 90f) * 90f;
+            ThetaPoint = (ThetaTarget - ThetaZero) / RotationDuration;
+            RotationTimer = RotationDuration;
+            Rb.constraints = RigidbodyConstraints2D.None;
         }
 
         //rolling is pressed
@@ -132,18 +110,18 @@ public class PlayerMovement : MonoBehaviour
 
 
         //jumping
-        if (jump_timer > 0.001f)
+        if (JumpTimer > 0.001f)
         {
-            jump_timer -= Time.deltaTime;
+            JumpTimer -= Time.deltaTime;
         }
 
         //jump has been released before full jump reached
-        if (manager.player_controller.jump_released == true)
+        if (Manager.ControllerInstance.JumpReleased == true)
         {
-            manager.player_controller.jump_released = false;
-            if (jump_timer > 0.001f)
+            Manager.ControllerInstance.JumpReleased = false;
+            if (JumpTimer > 0.001f)
             {
-                released_jump = true;
+                IsJumpReleased = true;
             }
         }
 
@@ -154,47 +132,47 @@ public class PlayerMovement : MonoBehaviour
     {
 
         //if just landed play the dust particle effects
-        if (manager.player_collision.is_grounded && !was_grounded)
+        if (Manager.ColliderInstance.IsGrounded && !WasGrounded)
         {
             create_dust();
-            if (manager.player_collision.current_face == manager.player_collision.bottom_face ||
-                manager.player_collision.current_face == manager.player_collision.top_face)
+            if (Manager.ColliderInstance.CurrentFace == Manager.ColliderInstance.BottomFace ||
+                Manager.ColliderInstance.CurrentFace == Manager.ColliderInstance.TopFace)
             {
-                player_animator.SetInteger("ground_side", 1);
+                PlayerAnimator.SetInteger("ground_side", 1);
             }
-            player_animator.SetBool("jump_squash", true);
+            PlayerAnimator.SetBool("jump_squash", true);
         }
         else
         {
-            player_animator.SetInteger("ground_side", 2);
-            player_animator.SetBool("jump_squash", false);
+            PlayerAnimator.SetInteger("ground_side", 2);
+            PlayerAnimator.SetBool("jump_squash", false);
         }
 
-        was_grounded = manager.player_collision.is_grounded;
+        WasGrounded = Manager.ColliderInstance.IsGrounded;
 
 
 
         //no rotation action is performed then do not allow rotation
-        if(rotation_timer == 0)
+        if (RotationTimer == 0)
         {
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            Rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
         //the rotation
-        if (rotation_timer > 0f)
+        if (RotationTimer > 0f)
         {
-            rotation_timer -= Time.deltaTime;
-            if (rotation_timer < 0f)
+            RotationTimer -= Time.deltaTime;
+            if (RotationTimer < 0f)
             {
-                theta_point = 0f;
-                rb.angularVelocity = 0f;
-                rb.rotation = theta_target;
+                ThetaPoint = 0f;
+                Rb.angularVelocity = 0f;
+                Rb.rotation = ThetaTarget;
             }
-            rb.angularVelocity = theta_point;
+            Rb.angularVelocity = ThetaPoint;
         }
         else
         {
-            rotation_timer = 0f;
+            RotationTimer = 0f;
         }
 
 
@@ -231,42 +209,44 @@ public class PlayerMovement : MonoBehaviour
 
             }
             direction = 0f;
-        }*/        
+        }*/
 
 
         //perform jump
-        if (manager.player_controller.jump_pressed)
+        if (Manager.ControllerInstance.JumpPressed)
         {
-            jump_timer = time_until_full_jump_is_considered;
+            JumpTimer = TimeUntilFullJumpIsConsidered;
             //rb.velocity = Vector2.up * jump_force + rb.velocity;
-            rb.AddForce(new Vector2(0f, jump_force));
-            manager.player_controller.jump_pressed = false;
+            Rb.AddForce(new Vector2(0f, JumpForce));
+            Manager.ControllerInstance.JumpPressed = false;
         }
 
         //if no dash and on the air the follow input
-        if (!manager.player_collision.is_grounded && dash_timer < 0.01f)
+        if (!Manager.ColliderInstance.IsGrounded && DashTimer < 0.01f)
         {
-            rb.velocity = new Vector2(manager.player_controller.move_input * velocity, rb.velocity.y);
+            Rb.velocity = new Vector2(Manager.ControllerInstance.MoveInput * Velocity, Rb.velocity.y);
         }
 
 
         //walk on the ground
-        if(manager.player_collision.is_grounded)
+        if (Manager.ColliderInstance.IsGrounded)
         {
-            float rot = Mathf.Abs(rb.rotation) % 360;
+            float rot = Mathf.Abs(Rb.rotation) % 360;
             if (Mathf.Abs(rot - 90f) < 0.1f || Mathf.Abs(rot - 270f) < 0.1f)
             {
-                spriteRenderer.sharedMaterial.SetFloat("_VerticalSkew", -manager.player_controller.move_input * 0.05f);
-                rb.velocity = new Vector2(manager.player_controller.move_input * velocity, rb.velocity.y);
-            } else
-            {
-                spriteRenderer.sharedMaterial.SetFloat("_HorizontalSkew", manager.player_controller.move_input * 0.05f);
-                rb.velocity = new Vector2(manager.player_controller.move_input * velocity, rb.velocity.y);
+                SprRenderer.sharedMaterial.SetFloat("_VerticalSkew", -Manager.ControllerInstance.MoveInput * 0.05f);
+                Rb.velocity = new Vector2(Manager.ControllerInstance.MoveInput * Velocity, Rb.velocity.y);
             }
-        } else
+            else
+            {
+                SprRenderer.sharedMaterial.SetFloat("_HorizontalSkew", Manager.ControllerInstance.MoveInput * 0.05f);
+                Rb.velocity = new Vector2(Manager.ControllerInstance.MoveInput * Velocity, Rb.velocity.y);
+            }
+        }
+        else
         {
-            spriteRenderer.sharedMaterial.SetFloat("_VerticalSkew", 0);
-            spriteRenderer.sharedMaterial.SetFloat("_HorizontalSkew", 0);
+            SprRenderer.sharedMaterial.SetFloat("_VerticalSkew", 0);
+            SprRenderer.sharedMaterial.SetFloat("_HorizontalSkew", 0);
         }
 
 
@@ -278,11 +258,11 @@ public class PlayerMovement : MonoBehaviour
 
 
         //allow the cancelling of the jump
-        if (released_jump && rb.velocity.y > 0)
+        if (IsJumpReleased && Rb.velocity.y > 0)
         {
             //Debug.Log("here");
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-            released_jump = false;
+            Rb.velocity = new Vector2(Rb.velocity.x, Rb.velocity.y * 0.5f);
+            IsJumpReleased = false;
         }
 
         //cancel rolling if you stop hitting z early
@@ -297,30 +277,31 @@ public class PlayerMovement : MonoBehaviour
 
 
         //dash physics
-        if (dash_timer > 0.01f)
+        if (DashTimer > 0.01f)
         {
-            if(manager.player_controller.dash_pressed == true)
+            if (Manager.ControllerInstance.DashPressed == true)
             {
-                manager.player_controller.dash_pressed = false;
+                Manager.ControllerInstance.DashPressed = false;
             }
-            ghost_effect.make_ghost = true;
+            GhostEffect.MakeGhost = true;
             //create_dash_particle();
-            rb.velocity = dash_velocity * dash_direction;
-            dash_timer -= Time.deltaTime;
-            if(dash_timer <= 0.01f) {
-                rb.velocity = dash_end_velocity * dash_direction;
+            Rb.velocity = DashVelocity * DashDirection;
+            DashTimer -= Time.deltaTime;
+            if (DashTimer <= 0.01f)
+            {
+                Rb.velocity = DashEndVelocity * DashDirection;
             }
         }
         else
         {
-            dash_timer = 0f;
+            DashTimer = 0f;
         }
     }
 
 
     void create_dust()
     {
-        dust.transform.position = rb.transform.position -Vector3.up * manager.player_collision.sprite_height * 0.5f;
-        dust.Play();
+        Dust.transform.position = Rb.transform.position - Vector3.up * Manager.ColliderInstance.SpriteHeight * 0.5f;
+        Dust.Play();
     }
 }

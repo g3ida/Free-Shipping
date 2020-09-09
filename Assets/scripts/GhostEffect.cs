@@ -1,40 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GhostEffect : MonoBehaviour
 {
+    public float GhostDelay = 0.001f;
+    private float GhostDelayCounter;
+    public GameObject Ghost;
+    [HideInInspector]
+    public bool MakeGhost = false;
 
-    public float ghost_delay = 0.001f;
-    private float ghost_delay_counter;
-    public GameObject ghost;
-    public bool make_ghost = false;
-
-    // Start is called before the first frame update
     void Start()
     {
-        ghost_delay_counter = ghost_delay;
+        GhostDelayCounter = GhostDelay;
     }
-
-    // Update is called once per frame
     void Update()
     {
-        if (make_ghost)
+        if (MakeGhost)
         {
-            if (ghost_delay_counter > 0.001f)
+            if (GhostDelayCounter > 0.001f)
             {
-                ghost_delay_counter -= Time.deltaTime;
+                GhostDelayCounter -= Time.deltaTime;
             }
             else
             {
-                make_ghost = false;
-                GameObject current_ghost = Instantiate(ghost, transform.position, transform.rotation);
+                MakeGhost = false;
+                GameObject current_ghost = Instantiate(Ghost, transform.position, transform.rotation);
                 Sprite current_sprite = GetComponent<SpriteRenderer>().sprite;
                 current_ghost.GetComponent<SpriteRenderer>().sprite = current_sprite;
                 current_ghost.transform.localRotation = this.transform.localRotation;
                 current_ghost.transform.localScale = this.transform.localScale;
                 Destroy(current_ghost, 0.1f);
-                ghost_delay_counter = ghost_delay;
+                GhostDelayCounter = GhostDelay;
             }
         }
     }
