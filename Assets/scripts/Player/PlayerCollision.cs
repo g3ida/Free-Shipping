@@ -2,6 +2,7 @@
 
 public class PlayerCollision : MonoBehaviour
 {
+    public PlayerManager Manager;
     public bool IsGrounded { get; private set; } //tells if the player is laying on the ground.
     public float TimeSinceGrounded { get; private set; } //how much time elapsed since the player left the ground.
 
@@ -20,6 +21,8 @@ public class PlayerCollision : MonoBehaviour
 
     //for raycasting
     private int CollisionLayerMask;
+    private int InteractionLayerMask = 1 >> 3;
+
     //indicates the length of the ray relatively to the player height.
     private readonly float RAY_LENGTH_FACTOR = 0.51f;
 
@@ -122,6 +125,25 @@ public class PlayerCollision : MonoBehaviour
         {
             IsGrounded = false;
             Debug.DrawRay(transform.position, -Vector2.up * SpriteHeight * 1.414214f * RAY_LENGTH_FACTOR, Color.white);
+        }
+
+        //raycasting to see if the player interacts with some object.
+        Vector3 faceOffset = transform.up * SpriteHeight * 0.5f;
+        foreach (var face in Manager.faces)
+        {
+            if (face != null)
+            {
+                var hits = Physics2D.RaycastAll(transform.position, faceOffset*2, face.rayDistance, face.interactionMask);
+                foreach (var h in hits)
+                {
+                    if (h.collider != null)
+                    {
+                        face.Interact(h.collider.gameObject);
+                    }
+                }
+                Debug.DrawRay(transform.position, faceOffset*2, Color.red, duration: 0, depthTest: false);
+            }
+            faceOffset = new Vector3(-faceOffset.y, faceOffset.x, faceOffset.z);
         }
     }
 }

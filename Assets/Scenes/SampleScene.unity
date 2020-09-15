@@ -2973,9 +2973,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 179e112b2791f8148b3eaf731186c2f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  power: 0.07
-  duration: 0.1
-  do_shake: 0
+  Power: 0.5
+  Duration: 0.5
+  DoShake: 0
   cam: {fileID: 0}
 --- !u!114 &1033240023
 MonoBehaviour:
@@ -3158,17 +3158,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37ec9d48bf7bd28488531171613eac22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 1141764962}
-  ghost_effect: {fileID: 1141764959}
-  dust: {fileID: 1804450504}
-  camera_shake: {fileID: 519420033}
-  velocity: 10
-  jump_force: 1200
-  drag_force_constant: 1
-  dash_time: 0.12
-  dash_velocity: 70
-  dash_end_velocity: 3
-  dash_direction: {x: 0, y: 0}
+  Manager: {fileID: 1141764962}
+  GhostEffect: {fileID: 1141764959}
+  Dust: {fileID: 1804450504}
+  CameraShake: {fileID: 519420033}
+  Velocity: 12
+  JumpForce: 1000
+  DragForceConstant: 20
+  DashTime: 0.12
+  DashVelocity: 70
+  DashEndVelocity: 3
+  DashDirection: {x: 0, y: 0}
 --- !u!1839735485 &1141764957
 Tilemap:
   m_ObjectHideFlags: 0
@@ -3427,9 +3427,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76961e50dee98ca41b7385d5c70f7395, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ghost_delay: 0.001
-  ghost: {fileID: 294370567357345669, guid: 3f2c850ea08bf4448b62ff68739dc458, type: 3}
-  make_ghost: 0
+  GhostDelay: 0.001
+  Ghost: {fileID: 294370567357345669, guid: 3f2c850ea08bf4448b62ff68739dc458, type: 3}
+  MakeGhost: 1
 --- !u!114 &1141764960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3442,18 +3442,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 394ea66c6cd32e54ebdfa03db45a4170, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manager: {fileID: 1141764962}
-  jump_pressed: 0
-  jump_delayed: 0
-  jump_released: 0
-  rotation_pressed: 0
-  reversed_rotation_pressed: 0
-  rolling_down: 0
-  max_allowed_dashes: 1
-  dash_time: 0.12
-  dash_velocity: 70
-  dash_end_velocity: 3
-  dash_pressed: 0
+  Manager: {fileID: 1141764962}
+  JumpPressed: 0
+  JumpDelayed: 0
+  JumpReleased: 0
+  RotationPressed: 0
+  ReversedRotationPressed: 0
+  MaxAllowedDashes: 1
+  DashTime: 0.12
+  DashVelocity: 70
+  DashEndVelocity: 3
+  DashPressed: 0
 --- !u!114 &1141764961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3466,6 +3465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebc5abc918325ee4ebe4161feb9b4446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Manager: {fileID: 1141764962}
 --- !u!114 &1141764962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3478,9 +3478,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c466232b2b018114d932e3206ac6d2ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player_controller: {fileID: 1141764960}
-  player_collision: {fileID: 1141764961}
-  player_movement: {fileID: 1141764956}
+  ControllerInstance: {fileID: 1141764960}
+  ColliderInstance: {fileID: 1141764961}
+  MovementInstance: {fileID: 1141764956}
 --- !u!1 &1493208647
 GameObject:
   m_ObjectHideFlags: 0
