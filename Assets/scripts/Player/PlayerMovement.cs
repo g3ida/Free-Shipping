@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     CameraShake CameraShake;
 
-    public float Velocity = 12.0f;
+    public const float Velocity = 12.0f;
 
     public float JumpForce = 1000.0f;
     public float DragForceConstant = 20f;
@@ -32,7 +33,6 @@ public class PlayerMovement : MonoBehaviour
     private float ThetaPoint;
     private float RotationTimer = 0f;
 
-
     //dash stuff
     public float DashTime = 0.12f;
     private float DashTimer = 0.0f;
@@ -41,6 +41,10 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 DashDirection;
 
     SpriteRenderer SprRenderer;
+
+    //walking dust
+    const float WALK_DUST_DELAY = 0.3f;
+    private float WalkingDustTimer = 0f;
 
     void Awake()
     {
@@ -79,7 +83,6 @@ public class PlayerMovement : MonoBehaviour
             Rb.constraints = RigidbodyConstraints2D.None;
         }
 
-
         if (Manager.ControllerInstance.ReversedRotationPressed)
         {
             Manager.ControllerInstance.ReversedRotationPressed = false;
@@ -89,25 +92,6 @@ public class PlayerMovement : MonoBehaviour
             RotationTimer = RotationDuration;
             Rb.constraints = RigidbodyConstraints2D.None;
         }
-
-        //rolling is pressed
-        /*if (manager.player_controller.rolling_down)
-        {
-            rolling_timer -= Time.deltaTime;
-            if (Mathf.Abs(rb.velocity.x) < 0.01f)
-            {
-                rolling_timer = time_to_cancel_rolling;
-            }
-            //torque = true;
-        }
-        else
-        {
-            if (rolling_timer > 0.01f)
-            {
-                rolling_cancelled = true;
-            }
-        }*/
-
 
         //jumping
         if (JumpTimer > 0.001f)
@@ -125,12 +109,22 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-
+        //if the plqyer is moving on ground then show dust
+        if (Manager.ColliderInstance.IsGrounded && Math.Abs(Rb.velocity.x) > 0.05f)
+        {
+            if (WalkingDustTimer < 0f)
+            {
+                WalkingDustTimer = WALK_DUST_DELAY;
+                create_dust();
+            }
+            WalkingDustTimer -= Time.deltaTime;            
+        } else
+        {
+            WalkingDustTimer = 0f;
+        }
     }
-
     void FixedUpdate()
     {
-
         //if just landed play the dust particle effects
         if (Manager.ColliderInstance.IsGrounded && !WasGrounded)
         {
@@ -149,8 +143,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         WasGrounded = Manager.ColliderInstance.IsGrounded;
-
-
 
         //no rotation action is performed then do not allow rotation
         if (RotationTimer == 0)
@@ -175,43 +167,6 @@ public class PlayerMovement : MonoBehaviour
             RotationTimer = 0f;
         }
 
-
-        /*if (manager.player_controller.rolling_down)
-        {
-            //the move on ground state
-            Vector3 position = transform.position;
-            position.y = position.y + manager.player_collision.sprite_height * 0.3f;
-            float move_input = manager.player_controller.move_input * velocity;
-            rb.AddForceAtPosition(new Vector2(move_input * 5f, -Mathf.Abs(move_input)), position, ForceMode2D.Force);
-            rb.velocity = new Vector2(Mathf.Max(Mathf.Min(rb.velocity.x, 10f), -10f), rb.velocity.y);
-            //adjust the angular velocity given the fact that a 360 degrees rotation of the box corresponds
-            //to a move of distance 4 * sprite_height
-            rb.angularVelocity = -rb.velocity.x * 360 / (4 * manager.player_collision.sprite_height);
-            timer_till_next_move = time_till_push * 2f;
-        }
-        else
-        {
-            //move on ground state
-            timer_till_next_move += Time.deltaTime;
-            if (direction != 0)
-            {
-                if (Mathf.Abs(rb.angularVelocity) > (rb.velocity.x * 360 / (4 * manager.player_collision.sprite_height)) * 0.3f)
-                {
-                    rb.angularVelocity = rb.angularVelocity * 0.5f;
-                }
-
-                if (timer_till_next_move > time_till_push)
-                {
-                    timer_till_next_move = 0f;
-                    rb.AddForce(new Vector2(direction * velocity * 0.85f, 0), ForceMode2D.Impulse);
-                }
-                rb.velocity = new Vector2(Mathf.Max(Mathf.Min(rb.velocity.x, 10f), -10f), rb.velocity.y);
-
-            }
-            direction = 0f;
-        }*/
-
-
         //perform jump
         if (Manager.ControllerInstance.JumpPressed)
         {
@@ -226,7 +181,6 @@ public class PlayerMovement : MonoBehaviour
         {
             Rb.velocity = new Vector2(Manager.ControllerInstance.MoveInput * Velocity, Rb.velocity.y);
         }
-
 
         //walk on the ground
         if (Manager.ColliderInstance.IsGrounded)
@@ -249,13 +203,11 @@ public class PlayerMovement : MonoBehaviour
             SprRenderer.sharedMaterial.SetFloat("_HorizontalSkew", 0);
         }
 
-
-        //drag force uncomment this if you want to add some air resistance
+        //=============================================================================
+        // Drag force uncomment this if you want to add some air resistance
+        //=============================================================================
         //Vector2 drag_force = new Vector2(rb.velocity.x - drag_force_constant * Math.Abs(rb.velocity.x) * rb.velocity.x, 0.0f);
         //rb.AddForce(drag_force, ForceMode2D.Force);
-
-
-
 
         //allow the cancelling of the jump
         if (IsJumpReleased && Rb.velocity.y > 0)
@@ -264,17 +216,6 @@ public class PlayerMovement : MonoBehaviour
             Rb.velocity = new Vector2(Rb.velocity.x, Rb.velocity.y * 0.5f);
             IsJumpReleased = false;
         }
-
-        //cancel rolling if you stop hitting z early
-        /*if (rolling_cancelled)
-        {
-            rb.angularVelocity = 0.5f * rb.angularVelocity;
-            rb.velocity = new Vector2(rb.velocity.x * 0.5f, rb.velocity.y);
-            rolling_cancelled = false;
-            rolling_timer = 0.0f;
-        }*/
-
-
 
         //dash physics
         if (DashTimer > 0.01f)
@@ -297,7 +238,6 @@ public class PlayerMovement : MonoBehaviour
             DashTimer = 0f;
         }
     }
-
 
     void create_dust()
     {

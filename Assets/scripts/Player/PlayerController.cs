@@ -22,7 +22,6 @@ public class PlayerController : MonoBehaviour
         public float Responsiveness; //how much do we dalay action hoping its conditions to be met.
     }
 
-
     ActionSettings JumpSettings = new ActionSettings(0.01f, 0.01f);
     ActionSettings DashSettings = new ActionSettings(0.01f, 0.01f);
 
