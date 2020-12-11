@@ -124,7 +124,7 @@ public class PlayerCollision : MonoBehaviour
         else
         {
             IsGrounded = false;
-            Debug.DrawRay(transform.position, -Vector2.up * SpriteHeight * 1.414214f * RAY_LENGTH_FACTOR, Color.white);
+            Debug.DrawRay(transform.position, -Vector2.up * SpriteHeight * 1.414214f * RAY_LENGTH_FACTOR, Color.red);
         }
 
         //raycasting to see if the player interacts with some object.
@@ -141,7 +141,7 @@ public class PlayerCollision : MonoBehaviour
                         face.Interact(h.collider.gameObject);
                     }
                 }
-                Debug.DrawRay(transform.position, faceOffset*2, Color.red, duration: 0, depthTest: false);
+                Debug.DrawRay(transform.position, faceOffset*2, Color.green, duration: 0, depthTest: false);
             }
             faceOffset = new Vector3(-faceOffset.y, faceOffset.x, faceOffset.z);
         }
