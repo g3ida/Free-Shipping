@@ -18,7 +18,7 @@ public class PlayerManager : MonoBehaviour
     {
         ColliderInstance.Manager = this;
         MovementInstance.Manager = this;
-        ControllerInstance.Manager = this;
+        ControllerInstance.manager = this;
         //setup a test face
         faces[(int)FaceIndex.top] = new StickyGlueBoxFace(this);
     }

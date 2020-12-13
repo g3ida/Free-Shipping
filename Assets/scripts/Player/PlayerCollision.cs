@@ -21,7 +21,6 @@ public class PlayerCollision : MonoBehaviour
 
     //for raycasting
     private int CollisionLayerMask;
-    private int InteractionLayerMask = 1 >> 3;
 
     //indicates the length of the ray relatively to the player height.
     private readonly float RAY_LENGTH_FACTOR = 0.51f;
@@ -86,21 +85,7 @@ public class PlayerCollision : MonoBehaviour
     }
     void OnTriggerExit2D(Collider2D col)
     {
-        //TODO
-        //i need to take into account if multiple faces
-        //are  colliding at the same time
-        /*if (col.IsTouching(top_face))
-        {
-        }
-        else if (col.IsTouching(bottom_face))
-        {
-        }
-        else if (col.IsTouching(left_face))
-        {
-        }
-        else if (col.IsTouching(right_face))
-        {
-        }*/
+        
     }
     private void Update()
     {
@@ -138,10 +123,11 @@ public class PlayerCollision : MonoBehaviour
                 {
                     if (h.collider != null)
                     {
-                        face.Interact(h.collider.gameObject);
+                        face.Interact(h);
+                        //Debug.DrawLine(transform.position, h.point, Color.black);
                     }
                 }
-                Debug.DrawRay(transform.position, faceOffset*2, Color.green, duration: 0, depthTest: false);
+                //Debug.DrawRay(transform.position, faceOffset*2, Color.green, duration: 0, depthTest: false);
             }
             faceOffset = new Vector3(-faceOffset.y, faceOffset.x, faceOffset.z);
         }

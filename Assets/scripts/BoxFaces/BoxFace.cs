@@ -11,5 +11,9 @@ public abstract class BoxFace
     {
         this.player = player;
     }
-    public abstract void Interact(GameObject gameObject);
+    public abstract void Interact(RaycastHit2D hit);
+    public virtual void Update()
+    {
+
+    }
 }

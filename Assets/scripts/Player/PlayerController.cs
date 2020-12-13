@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public PlayerManager Manager;
+    public PlayerManager manager;
     public float MoveInput { get; private set; }
     public float VerticalInput { get; private set; }
 
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
     public bool DashPressed = false;
 
-    private int DashCounter = 0;
+    public int DashCounter = 0;
 
     void Start()
     {
@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        if (Manager.ColliderInstance.IsGrounded)
+        if (manager.ColliderInstance.IsGrounded)
         {
             DashCounter = 0;
         }
@@ -60,18 +60,28 @@ public class PlayerController : MonoBehaviour
         //unlike the direction the vertical direction is not kept if no input is found.
         VerticalDirection = (VerticalInput > 0.7f ? 1 : (VerticalInput < -0.7f ? -1 : 0));
 
-        update_jump();
-        update_dash();
-        update_rotation();
+        UpdateFaces_();
+        UpdateJump_();
+        UpdateDash_();
+        UpdateRotation_();
     }
-    void update_rotation()
+
+    private void UpdateFaces_()
+    {
+        foreach (var face in manager.faces)
+        {
+            face?.Update();
+        }
+    }
+
+    private void UpdateRotation_()
     {
         RotationPressed = false;
-        if (Input.GetKeyDown(KeyCode.Z) && !Manager.ColliderInstance.IsGrounded)
+        if (Input.GetKeyDown(KeyCode.Z) && !manager.ColliderInstance.IsGrounded)
         {
             RotationPressed = true;
         }
-        if (Input.GetKeyDown(KeyCode.V) && !Manager.ColliderInstance.IsGrounded)
+        if (Input.GetKeyDown(KeyCode.V) && !manager.ColliderInstance.IsGrounded)
         {
             ReversedRotationPressed = true;
         }
@@ -88,7 +98,7 @@ public class PlayerController : MonoBehaviour
         }
         yield return null;
     }
-    void update_dash()
+    void UpdateDash_()
     {
         if (Input.GetKeyDown(KeyCode.X))
         {
@@ -100,7 +110,7 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
     #region Jump
-    void update_jump()
+    void UpdateJump_()
     {
         //jumping
         if (Input.GetButtonDown("Jump"))
@@ -127,11 +137,11 @@ public class PlayerController : MonoBehaviour
     }
     bool can_jump()
     {
-        if (Manager.ColliderInstance.IsGrounded)
+        if (manager.ColliderInstance.IsGrounded)
         {
             return true;
         }
-        if (Manager.ColliderInstance.TimeSinceGrounded <= JumpSettings.Permissiveness && !JumpPressed)
+        if (manager.ColliderInstance.TimeSinceGrounded <= JumpSettings.Permissiveness && !JumpPressed)
         {
             return true;
         }
@@ -145,7 +155,7 @@ public class PlayerController : MonoBehaviour
             //need to yield release
         }
         JumpDelayed = false;
-        if (Manager.ColliderInstance.IsGrounded)
+        if (manager.ColliderInstance.IsGrounded)
         {
             JumpPressed = true;
         }

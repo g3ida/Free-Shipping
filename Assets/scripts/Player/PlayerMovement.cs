@@ -63,8 +63,7 @@ public class PlayerMovement : MonoBehaviour
         //dash event
         if (Manager.ControllerInstance.DashPressed)
         {
-            CameraShake.DoShake = true;
-
+            CameraShake.DoShake = true; //shake the camera
             int hor = Manager.ControllerInstance.Direction;
             int vert = Manager.ControllerInstance.VerticalDirection;
             if (vert != 0) { hor = 0; }
