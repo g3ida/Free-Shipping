@@ -20,7 +20,16 @@ public class PlayerManager : MonoBehaviour
         MovementInstance.Manager = this;
         ControllerInstance.manager = this;
         //setup a test face
-        faces[(int)FaceIndex.top] = new StickyGlueBoxFace(this);
+        SetFace(FaceIndex.top, new StickyGlueBoxFace(this, FaceIndex.top));
+    }
+
+    void SetFace(FaceIndex faceIndex, BoxFace boxFace)
+    {
+        if (faces[(int)faceIndex] != null)
+        {
+            faces[(int)faceIndex].Destroy();
+        }
+        faces[(int)faceIndex] = boxFace;
     }
 
     // Update is called once per frame
