@@ -38,10 +38,10 @@ public class PlayerCollision : MonoBehaviour
         CollisionLayerMask = 1 << 8;
         CollisionLayerMask = ~CollisionLayerMask;
 
-        TopFace = gameObject.AddComponent<BoxCollider2D>() as BoxCollider2D;
-        LeftFace = gameObject.AddComponent<BoxCollider2D>() as BoxCollider2D;
-        RightFace = gameObject.AddComponent<BoxCollider2D>() as BoxCollider2D;
-        BottomFace = gameObject.AddComponent<BoxCollider2D>() as BoxCollider2D;
+        TopFace = gameObject.AddComponent<BoxCollider2D>();
+        LeftFace = gameObject.AddComponent<BoxCollider2D>();
+        RightFace = gameObject.AddComponent<BoxCollider2D>();
+        BottomFace = gameObject.AddComponent<BoxCollider2D>();
 
         TopFace.size = new Vector2(SpriteHeight * 0.96f, SpriteHeight * 0.2f);
         BottomFace.size = new Vector2(SpriteHeight * 0.96f, SpriteHeight * 0.2f);
